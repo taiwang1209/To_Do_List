@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang='zh-tw'>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <meta name='description' content=''>
+    <meta name='author' content='Mark Otto, Jacob Thornton, and Bootstrap contributors'>
+    <meta name='generator' content='Hugo 0.83.1'>
+    <title>📋 To-Do List</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel='stylesheet'>
+    <link href="{{ url_for('static', filename='css/fa.all.min.css') }}" rel='stylesheet'>
+
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+
+</head>
+
+<body class='bg-light'>
+
+    <div class='container'>
+        <main>
+            <div class='py-4 text-center'>
+                <h1 class='far fa-list-alt'></h1>
+                <h3>記錄您的待辦事項，整理工作與生活中所有大小事...</h3>
+            </div>
+
+            <div class='row'>
+                <div class='col-md-12 col-lg-12'>
+                    <h4>新增待辦事項</h4>
+                    <form class='needs-validation' method='POST' action='/'>
+                        <div>
+                            <div class='row'>
+                                <div class='col-sm-6'>
+                                    <div class='input-group'>
+                                        <input type='text' class='form-control' name='content' id='content'
+                                            placeholder='✏️ 請填入待辦事項' required>
+                                    </div>
+                                </div>
+                                <div class='col-sm-6'>
+                                    <select class='form-select' name='level' required>
+                                        <option selected disabled value=''>⏰ 請選擇重要程度</option>
+                                        <option value='&#128994;'>🟢 普通</option>
+                                        <option value='&#128992;'>🟠 緊急</option>
+                                        <option value='&#128308;'>🔴 最緊急</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button class='mt-3 w-100 btn btn-primary btn-lg' type='submit'><i
+                                class='fas fa-plus-circle'></i> 新增</button>
+                    </form>
+                </div>
+                <hr class='mt-3'>
+                <div class='col-md-12 col-lg-12'>
+                    <div class='card'>
+                        <div class='card-header'>
+                            待辦事項
+                        </div>
+                        <div class='card-body'>
+                            {% if tasks|length < 1 %} <!-- 若代辦事項為空 -->
+                                <h3 class='text-center'><i class='fas fa-cannabis' style='color:#228B22;'></i>
+                                    放鬆一下吧，目前沒有代辦事項！ <i class='fas fa-cannabis' style='color:#228B22;'></i></h3>
+                                {% else %}
+                                <table class='table'>
+                                    <thead>
+                                        <tr>
+                                            <th>等級</th>
+                                            <th>事件內容</th>
+                                            <th>時間</th>
+                                            <th>編輯</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for task in tasks %}
+                                        <tr>
+                                            <td>{{ task.level }}</td>
+                                            <td>{{ task.content }}</td>
+                                            <td>{{ task.date_created }}</td>
+                                            <td>
+                                                <div class='btn-group' role='group' aria-label='Basic example'>
+                                                    <button type='button' class='btn btn-success' data-bs-toggle='modal'
+                                                        data-bs-target='#update{{task.id}}'><i
+                                                            class='fas fa-pencil-alt'></i></button>
+                                                    <button type='button' class='btn btn-danger' data-bs-toggle='modal'
+                                                        data-bs-target='#delete{{task.id}}'><i
+                                                            class='fas fa-trash-alt'></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Update -->
+            {% for task in tasks %}
+            <div class='modal fade' id='update{{task.id}}' data-bs-backdrop='static' data-bs-keyboard='false'
+                tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                <div class='modal-dialog'>
+                    <form method='POST' action='update/{{task.id}}'>
+                        <div class='modal-content'>
+                            <div class='modal-header'>
+                                <h5 class='modal-title'>編輯代辦事項</h5>
+                                <button type='button' class='btn-close' data-bs-dismiss='modal'
+                                    aria-label='Close'></button>
+                            </div>
+                            <div class='modal-body'>
+                                <div class='mb-3'>
+                                    <input type='text' class='form-control' name='update_content' id='update_content'
+                                        value='{{task.content}}' required>
+                                </div>
+                                <div class='mb-3'>
+                                    <select class='form-select' name='update_level' id='update_level' required>
+                                        <option selected disabled value=''>⏰ 請選擇重要程度</option>
+                                        <option value='&#128994;'>🟢 普通</option>
+                                        <option value='&#128992;'>🟠 緊急</option>
+                                        <option value='&#128308;'>🔴 最緊急</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='modal-footer'>
+                                <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'><i
+                                        class='fas fa-times'></i> 關閉</button>
+                                <button type='submit' class='btn btn-primary'><i class='fas fa-pencil-alt'></i>
+                                    修改</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Modal Delete -->
+            {% for task in tasks %}
+            <div class='modal fade' id='delete{{task.id}}' data-bs-backdrop='static' data-bs-keyboard='false'
+                tabindex='-1' aria-labelledby='staticBackdropLabel' aria-hidden='true'>
+                <div class='modal-dialog'>
+                    <div class='modal-content'>
+                        <div class='modal-header'>
+                            <h5 class='modal-title'>確定要刪除嗎？</h5>
+                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                        </div>
+                        <div class='modal-footer'>
+                            <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'><i
+                                    class='fas fa-times'></i> 關閉</button>
+                            <button type='button' class='btn btn-danger'
+                                onclick="location.href='delete/{{task.id}}';"><i class='fas fa-trash-alt'></i>
+                                刪除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </main>
+
+        <footer class='my-5 pt-5 text-muted text-center text-small'>
+            <p class='mb-1'>&copy; 2021 Tai</p>
+        </footer>
+    </div>
+    <script src="{{url_for('static', filename='js/bootstrap.bundle.min.js')}}"></script>
+</body>
+
+</html>
