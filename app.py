@@ -21,8 +21,8 @@ def index():
     if request.method == 'POST':
         task_content = request.form['content']
         task_level = request.form['level']
-        new_task = TodoList(content = task_content, level = task_level, date_created = datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
-        db.session.add(new_task)
+        task_create = TodoList(content = task_content, level = task_level, date_created = datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
+        db.session.add(task_create)
         db.session.commit()
         return redirect('/')
     else:
